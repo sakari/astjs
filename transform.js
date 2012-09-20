@@ -1,8 +1,16 @@
 var esprima = require('esprima');
 
-exports.reify = function(fn) {
+exports.reifyStmt = function(fn) {
+    return exports.reifyBlock(fn)[0];
+};
+
+exports.reifyBlock = function(fn) {
     var ast = esprima.parse(fn);
-    return ast.body[0].body.body[0];
+    return ast.body[0].body.body;
+};
+
+exports.reifyExpr = function(fn) {
+    return exports.reifyStmt(fn).expression;
 };
 
 exports.splice = function(onto) {
