@@ -2,6 +2,27 @@ var should = require('should');
 var reify = require('../reify');
 
 describe('reify', function() {
+	     describe('shorthand', function() {
+			  it('can be used be giving a name to the function'
+			    , function() {
+				reify.reify(function stmt() { var a; })
+				    .should
+				    .eql(reify.stmt(function _() {
+							var a;
+						    }));
+				reify.reify(function block() { var a; })
+				    .should
+				    .eql(reify.block(function _() {
+							var a;
+						    }));
+				reify.reify(function expr() { a; })
+				    .should
+				    .eql(reify.expr(function _() {
+							a;
+						    }));
+			    });
+		      });
+
 	     describe('.block', function() {
 			  it('reifies statement blocks', function() {
 				 reify.block(function _() {

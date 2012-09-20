@@ -1,6 +1,11 @@
 var esprima = require('esprima');
 var transform = require('./transform');
 
+exports.reify = function(fn) {
+    var ast = esprima.parse(fn);
+    return exports[ast.body[0].id.name](fn);
+};
+
 exports.stmt = function(fn) {
     return exports.block(fn)[0];
 };
