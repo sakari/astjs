@@ -4,6 +4,73 @@ var reify = require('../reify');
 var should = require('should');
 
 describe('transform', function() {
+	     describe('.match', function() {
+			  it('return null if ast does not match', 
+			    function() {
+				should.strictEqual(
+				    transform.match(reify.stmt(function _() {
+								   var b;
+							       }
+							       , reify.stmt(function _() {
+										var a;
+									    })))
+				    , null);
+			    });
+			  it('returns an empty substitution if it matches without variable', function() {
+				 var template = reify.stmt(function _() {
+							       var b;
+							   });
+				 var matchee = reify.stmt(function _() {
+							      var b;
+							  });
+				 transform.match(template, matchee)
+				     .should
+				     .eql([]);
+			     });
+
+			  it('returns a substitution if it matches', function() {
+				 var template = reify.stmt(function _() {
+							       var $0;
+							   });
+				 var matchee = reify.stmt(function _() {
+							      var b;
+							  });
+				 var subst = transform.match(template, matchee);
+				 transform.substitute(template
+						      , subst)
+				     .should
+				     .eql(matchee);
+			     });
+
+			  it('matches multiple occurrences with the same substitution', function() {
+				 var template = reify.block(function _() {
+								var $0;
+								$0 = 1;
+							   });
+				 var matchee = reify.block(function _() {
+							       var b;
+							       b = 1;
+							   });
+				 var subst = transform.match(template, matchee);
+				 transform.substitute(template
+						      , subst)
+				     .should
+				     .eql(matchee);
+			     });
+
+			  it('returns null if required substitutions are not equal', function() {
+				 var template = reify.block(function _() {
+								var $0;
+								$0 = 1;
+							   });
+				 var matchee = reify.block(function _() {
+							       var b;
+							       c = 1;
+							   });
+				 should.strictEqual(transform.match(template, matchee), null);
+			     });
+		      });
+
 	     describe('.transform', function() {
 			  it('transforms ast trees', function() {
 				 var fn = reify.stmt(function _() {

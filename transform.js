@@ -1,5 +1,55 @@
 var esprima = require('esprima');
 
+function matchArray(pattern, match, substitution) {
+    if(!(match instanceof Array))
+	return null;
+    if (pattern.length !== match.length)
+	return null;
+    for(var i in pattern) {
+	if(!exports.match(pattern[i], match[i], substitution))
+	    return null;
+    }
+    return substitution;
+};
+
+function matchObject(pattern, match, substitution) {
+    if(!(match instanceof Object))
+	return null;
+
+    if(pattern.type == 'SpliceStatement' ||
+       pattern.type == 'SpliceIdentifier') {      
+	if (!substitution[pattern.splice]) {
+	    substitution[pattern.splice] = match;
+	    return substitution;
+	}
+	return exports.match(substitution[pattern.splice], match, substitution);
+    }
+
+    if (pattern === undefined ||
+	pattern === null ||
+	match === undefined ||
+	match === null)
+	return null;
+    for(var k in pattern) {
+	if(!exports.match(pattern[k], match[k], substitution)) {
+	    return null;
+	}
+    }
+    return substitution;
+}
+
+exports.match = function(pattern, match, substitution) {
+    substitution = substitution || {};
+
+    if (pattern instanceof Array)
+	return matchArray(pattern, match, substitution);
+    if (pattern instanceof Object)
+	return matchObject(pattern, match, substitution);
+    if (pattern === match)
+	return substitution;
+    return null;
+};
+
 function spliceIdentifier(ast, args) {
     if (ast.type !== 'SpliceIdentifier')
 	return ast;
@@ -24,17 +74,22 @@ function spliceStatement(ast, args) {
     return splice;
 }
 
-exports.splice = function(onto) {
-    var args = [];
-    for (var i = 1; i < arguments.length; i++) {
-	args.push(arguments[i]);
-    }
+exports.substitute = function(onto, subst) {
     return exports.transform(onto
 			     , function(ast) {
 				 if (ast.type === 'SpliceStatement')
-				     return spliceStatement(ast, args);
-				 return spliceIdentifier(ast, args);
-	     });
+				     return spliceStatement(ast, subst);
+				 return spliceIdentifier(ast, subst);
+			     });
+
+};
+
+exports.splice = function(onto) {
+    var args = {};
+    for (var i = 1; i < arguments.length; i++) {
+	args[i - 1] = arguments[i];
+    }
+    return exports.substitute(onto, args);
 };
 
 exports.transform = function(ast, fn) {
