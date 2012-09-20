@@ -22,6 +22,19 @@ describe('transform', function() {
 				     .should
 				     .equal('mapped_i');
 			     });
+
+			  it('flattens transfrom results in lists', function() {
+				 var p = [{ type: 'T'}, { type: 'K'}];
+				 transform.transform(p, function(ast) {
+							 if(ast.type === 'T')
+							     return [1, 2];
+							 if(ast.type === 'K')
+							     return 3;
+							 return ast;
+						     })
+				     .should
+				     .eql([1, 2, 3]);
+			     });
 		      });
 
 	     describe('reifyBlock', function() {
@@ -34,7 +47,6 @@ describe('transform', function() {
 				     .should
 				     .equal(2);
 			     });
-			  
 		      });
 
 	     describe('reifyExpr', function() {
@@ -46,7 +58,6 @@ describe('transform', function() {
 				     .should
 				     .equal('BinaryExpression');
 			     });
-			  
 		      });
 
 	     describe('reifyStmt', function() {
@@ -62,18 +73,71 @@ describe('transform', function() {
 		      });
 
 	     describe('splice', function() {
-			  it('splices asts with asts', function() {
-				 var fn = transform.reifyStmt(function _() {
-								  $0;
-							      });
-				 var arg = transform.reifyStmt(function _() {
-								   var a = 1;
+			  it('splices a single statement to a block', 
+			     function() {
+				 var fn = transform.reifyBlock(function _() {
+								   $0;
+								   var c;
 							       });
-				 transform.splice(fn, arg)
-				     .should
-				     .have
-				     .property('type', 'ExpressionStatement');
+
+				 var stmt = transform.reifyStmt(function _() {
+								    var a;
+								});
+
+				 var expected = transform.reifyBlock(function _() {
+									 var a;
+									 var c;
+								     });
+				 var got = transform.splice(fn, stmt);
+				 got.should.eql(expected);
 			     });
+
+			  it('splices a list of statements to a block', 
+			     function() {
+				 var fn = transform.reifyBlock(function _() {
+								   $0;
+								   var c;
+							       });
+				 var block  = transform.reifyBlock(function _() {
+								    var a;
+								    var b;
+								});
+				 var expected = transform.reifyBlock(function _() {
+									 var a;
+									 var b;
+									 var c;
+								     });
+				 var got = transform.splice(fn, block);
+				 got.should.eql(expected);
+			     });
+
+			  it('splices a statements and blocks to a block', 
+			     function() {
+				 var fn = transform.reifyBlock(function _() {
+								   $0;
+								   var c;
+								   $1;
+							       });
+
+				 var block  = transform.reifyBlock(function _() {
+								    var a;
+								    var b;
+								});
+
+				 var stmt = transform.reifyStmt(function _() {
+								    var d;
+								});
+
+				 var expected = transform.reifyBlock(function _() {
+									 var a;
+									 var b;
+									 var c;
+									 var d;
+								     });
+				 var got = transform.splice(fn, block, stmt);
+				 got.should.eql(expected);
+			     });
+
 			  
 			  it('allows escaping $ as $$', function() {
 				 var fn = transform.reifyStmt(function _() {

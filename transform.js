@@ -6,12 +6,62 @@ exports.reifyStmt = function(fn) {
 
 exports.reifyBlock = function(fn) {
     var ast = esprima.parse(fn);
-    return ast.body[0].body.body;
+    return exports.transform(ast
+			     , function(ast) {
+				 if (ast.type === 'Identifier') {
+				     if ( ast.name.match(/^\$\$/)) {
+					 return {
+					     type: 'Identifier',
+					     name: ast.name.replace(/^\$\$/, 
+								    '$')
+					 };
+				     }
+				     if (ast.name.match(/^\$[0-9]+/)) {
+					 return {
+					     type: 'SpliceIdentifier',
+					     splice: Number(ast.name.replace(/^\$/, ''))
+					 };
+				     }
+				 }
+				 if (ast.type === 'ExpressionStatement' &&
+				     ast.expression.type == 'SpliceIdentifier') {
+				     return {
+					 type: 'SpliceStatement',
+					 splice: ast.expression.splice
+				     };
+				 }
+				 return ast;
+			     })
+	.body[0].body.body;
 };
 
 exports.reifyExpr = function(fn) {
     return exports.reifyStmt(fn).expression;
 };
+
+function spliceIdentifier(ast, args) {
+    if (ast.type !== 'SpliceIdentifier')
+	return ast;
+    if(ast.splice >= args.length)
+	throw new Error('Non existing splice');
+    return args[ast.splice];
+}
+
+function spliceStatement(ast, args) {
+   if(ast.splice >= args.length)
+	throw new Error('Non existing splice');
+    var splice = args[ast.splice];
+    if (!(splice instanceof Array))
+	splice = [splice];
+
+    splice.forEach(function(s) {
+		       if (s.type !== 'ExpressionStatement' &&
+			   s.type !== 'VariableDeclaration' &&
+			   s.type !== 'SpliceStatement')
+			   throw new Error('Expected a statement for splice');
+		   });
+    return splice;
+}
 
 exports.splice = function(onto) {
     var args = [];
@@ -20,26 +70,16 @@ exports.splice = function(onto) {
     }
     return exports.transform(onto
 			     , function(ast) {
-				 if (ast.type !== 'Identifier')
-				     return ast;
-				 if (ast.name.match(/^\$\$/))
-				     return {
-					 type: 'Identifier',
-					 name: ast.name.replace(/^\$\$/, '$')
-				     };
-				 if(!ast.name.match(/^\$([0-9]+)/))
-				     return ast;
-				 var index = ast.name.match(/^\$([0-9]+)/)[1];
-				 if(index >= args.length)
-				     throw new Error('Non existing splice');
-				 return args[index];
-		
+				 if (ast.type === 'SpliceStatement')
+				     return spliceStatement(ast, args);
+				 return spliceIdentifier(ast, args);
 	     });
 };
 
 exports.transform = function(ast, fn) {
     var newAst;
-    if (typeof ast !== 'object' || !ast)
+    if (typeof ast !== 'object' || 
+	!ast)
 	return ast;
     if (ast instanceof Array)
 	newAst = [];
@@ -47,6 +87,9 @@ exports.transform = function(ast, fn) {
 	newAst = {};
     for(var c in ast) {
 	newAst[c] = exports.transform(ast[c], fn);
+    }
+    if (newAst instanceof Array) {
+	return fn(Array.prototype.concat.apply([], newAst));
     }
     return fn(newAst);
 };
