@@ -2,6 +2,28 @@ var transform = require('../transform');
 var should = require('should');
 
 describe('transform', function() {
+	     describe('transform', function() {
+			 it('transforms ast trees', function() {
+				var fn = transform.reify(function _() {
+							     var i;
+							 });
+				transform.transform(fn, 
+						    function(ast) {
+							if (ast.type !== 'Identifier')
+							    return ast;
+							return {
+							    type: 'Identifier',
+							    name: 'mapped_' + ast.name
+							};
+						    })
+				    .declarations[0]
+				    .id
+				    .name
+				    .should
+				    .equal('mapped_i');
+			    });
+		     });
+
 	     describe('reify', function() {
 			  it('reifies the body of the argument function to ast',
 			     function() {
