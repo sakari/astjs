@@ -104,20 +104,7 @@ describe('transform', function() {
 				 var got = transform.splice(fn, block, stmt);
 				 got.should.eql(expected);
 			     });
-
 			  
-			  it('allows escaping $ as $$', function() {
-				 var fn = reify.stmt(function _() {
-								  var $$ = 1;
-							      });
-				 transform.splice(fn)
-				     .declarations[0]
-				     .id
-				     .name
-				     .should
-				     .equal("$");
-			     });
-
 			  it('throws if trying to splice non existing arg',
 			     function() {
 				 var fn = reify.stmt(function _() {
