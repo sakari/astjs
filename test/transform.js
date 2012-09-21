@@ -1,10 +1,11 @@
 var transform = require('../src').transform;
 var reify = require('../src').reify;
-
+var util = require('util');
 var should = require('should');
 
 describe('transform', function() {
 	     describe('.match', function() {
+
 			  it('return null if ast does not match', 
 			    function() {
 				should.strictEqual(
@@ -69,6 +70,112 @@ describe('transform', function() {
 							   });
 				 should.strictEqual(transform.match(template, matchee), null);
 			     });
+
+			  it('matches expressions', function() {
+				 var template = reify.stmt(function _() {
+							       var a = $0;
+							   });
+				 var matchee = reify.stmt(function _() {
+							      var a = 1 + k();
+							  });
+				 var subst = transform.match(template, matchee);
+				 transform.substitute(template
+						      , subst)
+				     .should
+				     .eql(matchee);
+			     });
+
+			  it('matches many statements', function() {
+				 var template = reify.block(function _() {
+							       $0_;
+							   });
+				 var matchee = reify.block(function _() {
+							      var a;
+							      var b;
+							  });
+				 var subst = transform.match(template, matchee);
+				 transform.substitute(template
+						      , subst)
+				     .should
+				     .eql(matchee);
+			     });
+
+			  it('matches statements as far as possible', function() {
+				 var template = reify.block(function _() {
+								$0_;
+								var a;
+							   });
+				 var matchee = reify.block(function _() {
+							       var a;
+							       var a;
+							       var a;
+							  });
+				 var subst = transform.match(template, matchee);
+				 subst[0]
+				     .should
+				     .eql(reify.block(function _() {
+							  var a;
+							  var a;
+						      }));
+			     });
+
+			  it('matches greedily', function() {
+				 var template = reify.block(function _() {
+								$0_;
+								$1_;
+							   });
+				 var matchee = reify.block(function _() {
+							       var a;
+							       var a;
+							  });
+				 var subst = transform.match(template, matchee);
+				 subst[0].length.should.eql(2);
+				 subst[1].should.eql([]);
+			     });
+
+
+			  it('matches zero statements', function() {
+				 var template = reify.block(function _() {
+								$0_;
+								var a;
+							   });
+				 var matchee = reify.block(function _() {
+							       var a;
+							  });
+				 var subst = transform.match(template, matchee);
+				 subst[0].should.eql([]);
+			     });
+
+			  it('matches argument lists', function() {
+				 var template = reify.block(function _() {
+								function a($0_) {
+								}
+							   });
+				 var matchee = reify.block(function _() {
+							       function a(m, k) {
+							       }
+							  });
+				 var subst = transform.match(template, matchee);
+				 subst[0].length.should.eql(2);
+				 transform.substitute(template
+						      , subst)
+				     .should
+				     .eql(matchee);
+			     });
+
+			  it('matches apply lists', function() {
+				 var template = reify.block(function _() {
+								a($0_, $1);
+							   });
+				 var matchee = reify.block(function _() {
+							       a(1, a, k(), 1 + 2);
+							  });
+				 var subst = transform.match(template, matchee);
+				 transform.substitute(template
+						      , subst)
+				     .should
+				     .eql(matchee);
+			     });
 		      });
 
 	     describe('.transform', function() {
@@ -107,6 +214,36 @@ describe('transform', function() {
 		      });
 
 	     describe('.splice', function() {
+			  it('splices an expression', 
+			     function() {
+				 var fn = reify.block(function _() {
+								   var a = $0;
+							       });
+				 var expr = reify.expr(function _() {
+							  1 + k();
+						       });
+				 var expected = reify.block(function _() {
+								var a = 1 + k();
+							    });
+				 var got = transform.splice(fn, expr);
+				 got.should.eql(expected);
+			     });
+
+			  it('splices an identifier', 
+			     function() {
+				 var fn = reify.block(function _() {
+								   var $0;
+							       });
+				 var expr = reify.expr(function _() {
+							  a;
+						       });
+				 var expected = reify.block(function _() {
+								var a;
+							    });
+				 var got = transform.splice(fn, expr);
+				 got.should.eql(expected);
+			     });
+
 			  it('splices a single statement to a block', 
 			     function() {
 				 var fn = reify.block(function _() {

@@ -14,6 +14,7 @@ exports.block = function(fn) {
     var ast = esprima.parse(fn);
     return transform.transform(ast
 			       , function(ast) {
+				   var splice;
 				   if (ast.type === 'Identifier') {
 				       if ( ast.name.match(/^\$\$/)) {
 					   return {
@@ -22,19 +23,23 @@ exports.block = function(fn) {
 								      '$')
 					   };
 				       }
-				       if (ast.name.match(/^\$[0-9]+/)) {
+				       if (ast.name.match(/^\$[0-9]+_?/)) {
+					   var m = ast.name.match(/^\$([0-9]+)(_?)/);
+					   if (m[2])
+					       return {
+						   type: 'SpliceList',
+						   splice: Number(m[1])
+					       };
 					   return {
-					       type: 'SpliceIdentifier',
-					       splice: Number(ast.name.replace(/^\$/, ''))
+					       type: 'Splice',
+					       splice: Number(m[1])
 					   };
 				       }
 				   }
 				   if (ast.type === 'ExpressionStatement' &&
-				       ast.expression.type == 'SpliceIdentifier') {
-				       return {
-					   type: 'SpliceStatement',
-					   splice: ast.expression.splice
-				       };
+				       (ast.expression.type == 'Splice' || 
+					ast.expression.type == 'SpliceList')) {
+				       return ast.expression;
 				   }
 				   return ast;
 			       })

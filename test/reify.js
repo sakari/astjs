@@ -44,18 +44,29 @@ describe('reify', function() {
 				     .equal("$");
 			     });
 
-			  it('Converts $N to splice statement', function() {
+			  it('Converts $N to splice in statement', function() {
 				 reify.block(function _() {
 						 $1;
 					     })[0]
 				     .should
 				     .eql({
-					      type: 'SpliceStatement',
+					      type: 'Splice',
 					      splice: 1
 					  });
 			     });
 
-			  it('Converts $N to splice identifier', function() {
+			  it('Converts $N_ to splice list', function() {
+				 reify.block(function _() {
+						 $1_;
+					     })[0]
+				     .should
+				     .eql({
+					      type: 'SpliceList',
+					      splice: 1,
+					  });
+			     });
+
+			  it('Converts $N to splice in identifier', function() {
 				 reify.block(function _() {
 						 var $1;
 					     })[0]
@@ -63,10 +74,24 @@ describe('reify', function() {
 				     .id
 				     .should
 				     .eql({
-					      type: 'SpliceIdentifier',
+					      type: 'Splice',
 					      splice: 1
 					  });
 			     });
+
+			  it('Converts $N_ to splice lists identifier', function() {
+				 reify.block(function _() {
+						 var $1_;
+					     })[0]
+				     .declarations[0]
+				     .id
+				     .should
+				     .eql({
+					      type: 'SpliceList',
+					      splice: 1,
+					  });
+			     });
+
 		      });
 
 	     describe('.expr', function() {
