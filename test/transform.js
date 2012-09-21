@@ -1,5 +1,5 @@
-var transform = require('../transform');
-var reify = require('../reify');
+var transform = require('../src').transform;
+var reify = require('../src').reify;
 
 var should = require('should');
 

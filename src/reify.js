@@ -1,5 +1,5 @@
 var esprima = require('esprima');
-var transform = require('./transform');
+var transform = require('./index').transform;
 
 exports.reify = function(fn) {
     var ast = esprima.parse(fn);

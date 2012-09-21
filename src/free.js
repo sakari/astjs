@@ -1,4 +1,6 @@
-var transform = require('./transform');
+
+var transform = require('./index').transform;
+
 exports.all = function(ast) {
     var identifiers = {};
     transform.transform(ast, function(ast) {

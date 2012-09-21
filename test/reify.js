@@ -1,5 +1,5 @@
 var should = require('should');
-var reify = require('../reify');
+var reify = require('../src').reify;
 
 describe('reify', function() {
 	     describe('shorthand', function() {

@@ -1,6 +1,6 @@
 var should = require('should');
-var reify = require('../reify').reify;
-var free = require('../free');
+var reify = require('../src').reify.reify;
+var free = require('../src').free;
 
 describe('free', function(){
 	     describe('all', function() {
