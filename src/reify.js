@@ -6,6 +6,10 @@ exports.reify = function(fn) {
     return exports[ast.body[0].id.name](fn);
 };
 
+exports.literal = function(value) {
+    return exports.expr('function _() {(' + JSON.stringify(value) + ')}');
+};
+
 exports.stmt = function(fn) {
     return exports.block(fn)[0];
 };

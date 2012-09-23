@@ -1,5 +1,7 @@
 var should = require('should');
 var reify = require('../src').reify;
+var escodegen = require('escodegen');
+var util = require('util');
 
 describe('reify', function() {
 	     describe('shorthand', function() {
@@ -20,6 +22,21 @@ describe('reify', function() {
 				    .eql(reify.expr(function _() {
 							a;
 						    }));
+			    });
+		      });
+
+	     describe('literal', function() {
+			  function evalValue(str) {
+			      return eval('(' + str + ')');
+			  }
+
+			  it('converts literals to ast form'
+			    , function() {
+				evalValue(escodegen.generate(
+					      reify.literal({a: 1})
+					  ))
+				    .should
+				    .eql({a: 1});
 			    });
 		      });
 
