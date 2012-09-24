@@ -71,6 +71,18 @@ describe('reify', function() {
 					      splice: 1
 					  });
 			     });
+			  it('Converts $N to splice in init for for', function() {
+				 reify.block(function _() {
+						 for($1;;);
+					     })[0]
+				     .init
+				     .should
+				     .eql({
+					      type: 'Splice',
+					      splice: 1
+					  });
+			     });
+
 
 			  it('Converts $N_ to splice list', function() {
 				 reify.block(function _() {

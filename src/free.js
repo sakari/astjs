@@ -1,13 +1,13 @@
 
-var transform = require('./index').transform;
+var transform = require('./transform');
 
 exports.all = function(ast) {
     var identifiers = {};
-    transform.transform(ast, function(ast) {
-			    if (ast.type === 'Identifier')
-				identifiers[ast.name] = 1;
-			    return ast;
-			});
+    transform(ast, function(ast) {
+		  if (ast.type === 'Identifier')
+		      identifiers[ast.name] = 1;
+		  return ast;
+	      });
     return identifiers;
 };
 
