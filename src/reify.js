@@ -1,47 +1,52 @@
 var esprima = require('esprima');
 var transform = require('./index').transform;
 
-exports.reify = function(fn) {
+exports.reify = function(fn, opts) {
     var ast = esprima.parse(fn);
-    return exports[ast.body[0].id.name](fn);
+    return exports[ast.body[0].id.name](fn, opts);
 };
 
-exports.literal = function(value) {
-    return exports.expr('function _() {(' + JSON.stringify(value) + ')}');
+exports.literal = function(value, opts) {
+    return exports.expr('function _() {(' + JSON.stringify(value) + ')}', opts);
 };
 
-exports.stmt = function(fn) {
-    return exports.block(fn)[0];
+exports.stmt = function(fn, opts) {
+    return exports.block(fn, opts)[0];
 };
 
-exports.block = function(fn) {
-    var ast = esprima.parse(fn);
+exports.block = function(fn, opts) {
+    var ast = esprima.parse(fn, opts || {});
     return transform(ast
 		     , function(ast) {
 			 var splice;
 			 if (ast.type === 'Identifier') {
 			     if ( ast.name.match(/^\$\$/)) {
-				 return {
+				 splice = {
 				     type: 'Identifier',
-				     name: ast.name.replace(/^\$\$/, 
-							    '$')
+				     name: ast.name.replace(/^\$\$/, '$')
 				 };
-			     }
-			     if (ast.name.match(/^\$[0-9]+_?/)) {
+			     } else if (ast.name.match(/^\$[0-9]+_?/)) {
 				 var m = ast.name.match(/^\$([0-9]+)(_?)/);
 				 if (m[2])
-				     return {
+				     splice = {
 					 type: 'SpliceList',
 					 splice: Number(m[1])
 				     };
-				 return {
-				     type: 'Splice',
-					       splice: Number(m[1])
-				 };
+                                 else
+				     splice = {
+				         type: 'Splice',
+				         splice: Number(m[1])
+				     };
 			     }
 			 }
+                         if (splice) {
+                             if(ast.loc)
+                                 splice.loc = ast.loc;
+                             return splice;
+                         }
+
 			 if (ast.type === 'ExpressionStatement' &&
-			     (ast.expression.type == 'Splice' || 
+			     (ast.expression.type == 'Splice' ||
 			      ast.expression.type == 'SpliceList')) {
 			     return ast.expression;
 			 }
@@ -50,7 +55,7 @@ exports.block = function(fn) {
 	.body[0].body.body;
 };
 
-exports.expr = function(fn) {
-    var e = exports.stmt(fn);
+exports.expr = function(fn, opts) {
+    var e = exports.stmt(fn, opts);
     return e.expression || e;
 };

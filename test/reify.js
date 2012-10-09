@@ -51,6 +51,17 @@ describe('reify', function() {
 				     .equal(2);
 			     });
 
+			  it('adds location info if requested', function() {
+				 reify.block(function _() {
+				     var a;
+				     var b;
+				 }, {loc: true})[0]
+                                  .loc
+                                  .start.line
+                              	  .should
+				  .equal(2);
+			     });
+
 			  it('unescapes $$ as $', function() {
 				 reify.block(function _() {
 						 $$;
