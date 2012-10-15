@@ -6,7 +6,7 @@ var transform = require('./transform');
 
 function containsSplices(ast) {
     var contains;
-    transform(ast, 
+    transform(ast,
 	      function(i) {
 		  if(i && (i.type === 'Splice' ||
 			   i.type === 'SpliceList'))
@@ -62,7 +62,7 @@ function matchArray(pattern, match, substitution) {
     }
 
     if(pattern[0].type === 'SpliceList') {
-	spliceAst = substitution[pattern[0].splice]; 
+	spliceAst = substitution[pattern[0].splice];
 	if (spliceAst !== undefined)
 	    return matchArray(spliceAst
 			      .concat(_.rest(pattern))
@@ -87,9 +87,14 @@ function matchObject(pattern, match, substitution) {
     if(!(match instanceof Object) && match !== null)
 	return null;
 
-    if (match && !match.type ||
-	pattern && !pattern.type)
-	return substitution;
+    if (pattern && pattern.type === 'SpliceLocation') {
+        console.log('SpliceLocation ' + pattern);
+        substitution.loc = substitution.loc || {};
+        substitution.loc[pattern.splice] = match;
+        return substitution;
+    }
+    if (match && match.start && match.start.line)
+        return substitution;
 
     if(pattern.type == 'Splice' ||
        pattern.type == 'SpliceList') {
@@ -107,7 +112,7 @@ function matchObject(pattern, match, substitution) {
 	match === null)
 	return null;
     for(var k in pattern) {
-	substitution = module.exports(pattern[k], match[k], substitution); 
+	substitution = module.exports(pattern[k], match[k], substitution);
 	if(!substitution) {
 	    return null;
 	}

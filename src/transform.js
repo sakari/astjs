@@ -1,6 +1,6 @@
 module.exports = function(ast, fn) {
     var newAst;
-    if (typeof ast !== 'object' || 
+    if (typeof ast !== 'object' ||
 	!ast)
 	return ast;
     if (ast instanceof Array)

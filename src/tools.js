@@ -8,18 +8,20 @@ exports.simplify = function(ast) {
 
 exports.hoist = function(ast) {
         function splitDeclarator(decl, vars) {
-	        vars.push(map.substitute(
-		        reify(function stmt(){
-				var $0;
-			})
-		        , {0: decl.id}));
-	        if (!decl.init)
-	                return null;
-	        return map.substitute(
-	                reify(function expr() {
-		                $0 = $1;
-		        }), {0: decl.id,
-		             1: decl.init});
+	    vars.push(map.substitute(
+		reify(function stmt(){
+		    var $0;
+		})
+		, {0: decl.id}));
+            if(decl.loc)
+                vars[vars.length - 1].loc = decl.loc;
+	    if (!decl.init)
+	        return null;
+	    return map.substitute(
+	        reify(function expr() {
+		    $0 = $1;
+		}), {0: decl.id,
+		     1: decl.init});
         }
 
         function handleForDecl(stmt, vars) {
@@ -39,31 +41,32 @@ exports.hoist = function(ast) {
         }
 
         function handleVarDecl(stmt, vars) {
-	        if(!stmt ||
-	           stmt.type !== 'VariableDeclaration')
-	                return stmt;
-	        var assingments = stmt
-	                .declarations
-	                .map(function(decl) {
-		                return splitDeclarator(decl, vars);
-		        })
-	                .filter(function(x) { return x;});
-	        if (assingments.length > 1) {
-	                return {
-		                type: 'ExpressionStatement',
-		                expression: {
-		                        type: 'SequenceExpression',
-		                        expressions: assingments
-		                }
-	                };
-	        }
-	        if (assingments.length === 1) {
-	                return {
-		                type: 'ExpressionStatement',
-		                expression: assingments[0]
-	                };
-	        }
-	        return null;
+	    if(!stmt ||
+	       stmt.type !== 'VariableDeclaration')
+	        return stmt;
+	    var assingments = stmt
+	        .declarations
+	        .map(function(decl) {
+		    return splitDeclarator(decl, vars);
+		})
+	        .filter(function(x) { return x;});
+            var expr = {
+                type: 'ExpressionStatement',
+            }
+            if (stmt.loc)
+                expr.loc = stmt.loc;
+	    if (assingments.length > 1) {
+                expr.expression = {
+		    type: 'SequenceExpression',
+		    expressions: assingments
+		}
+	        return expr;
+            }
+	    if (assingments.length === 1) {
+                expr.expression =  assingments[0]
+                return expr;
+	    }
+	    return null;
         }
 
         return transform(ast, function(ast) {
@@ -83,9 +86,9 @@ exports.hoist = function(ast) {
 
 exports.block = function(ast) {
         function wrapExpression(block) {
+
 	        if(block.type === 'BlockStatement')
 	                return block;
-                console.log('BLOCK ' + JSON.stringify(block, null, 4));
                 if (block.loc)
 	                return {
 	                        type: 'BlockStatement',

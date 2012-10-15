@@ -14,6 +14,22 @@ exports.stmt = function(fn, opts) {
     return exports.block(fn, opts)[0];
 };
 
+exports.pattern = function(fn, opts) {
+    var locIndex = 0;
+    var ast = exports.reify(fn, opts);
+    return transform(ast, function(ast) {
+        if (ast && ast.type &&
+            ast.type !== 'Splice' &&
+            ast.type !== 'SpliceList') {
+            ast.loc = {
+                type: 'SpliceLocation',
+                splice: locIndex++
+            };
+        }
+        return ast;
+    });
+}
+
 exports.block = function(fn, opts) {
     var ast = esprima.parse(fn, opts || {});
     return transform(ast
