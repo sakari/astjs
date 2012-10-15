@@ -1,16 +1,36 @@
 
-# Fun with javascript AST
+# Fun with javascript AST on top of esprima.
 
-Translations, matching, substitution, reification. See
-`translation.js` and `reify.js` for details as well as files in
-`test/`.
+Transformations, pattern matching, substitution, reification. The gist
+of the library is that you can reify pure javascript functions
+seamlessly to abstract syntax trees.
+
+    var src = astjs.reify.reify(function block() {
+        var a = 1;
+        var b = 2;
+    })
+
+The format we use is the one used by Esprima.
+
+Reifying just regular functions is maybe not so useful but we can also
+reify pattern functions i.e. functions which contains `splice
+variables` denoted by `$[0-9]+`.
+
+    var pattern = astjs.reify.pattern(function block() {
+        var a = $1;
+        var $2 = 2;
+    }
+
+This pattern can be used for pattern matching in AST trees, mapping of
+AST trees or as a place where you just substitute some AST values in to
+the splice variables.
+
 
 # Testing
 
 Run tests with `mocha`
 
-
-# Licence (The included node_modules have their own)
+# Licence (MIT style)
 
 Copyright (C) 2012 Sakari Jokinen
 

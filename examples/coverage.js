@@ -63,7 +63,3 @@ function coverage(src, cb) {
           );
     });
 }
-
-coverage('coverage.js', function(err, c) {
-    console.log(escodegen.generate(c));
-});
