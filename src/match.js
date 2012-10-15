@@ -84,14 +84,11 @@ function matchArray(pattern, match, substitution) {
 };
 
 function matchObject(pattern, match, substitution) {
-    if(!(match instanceof Object) && match !== null)
-	return null;
-
-    if (pattern && pattern.type === 'SpliceLocation') {
-        substitution.loc = substitution.loc || {};
-        substitution.loc[pattern.splice] = match;
-        return substitution;
+    if(!(match instanceof Object) &&
+       match !== null) {
+    	return null;
     }
+
     if (match && match.start && match.start.line)
         return substitution;
 
@@ -111,10 +108,17 @@ function matchObject(pattern, match, substitution) {
 	match === null)
 	return null;
     for(var k in pattern) {
-	substitution = module.exports(pattern[k], match[k], substitution);
-	if(!substitution) {
-	    return null;
-	}
+        if (k === 'loc' &&
+            pattern[k] &&
+            pattern[k].type === 'SpliceLocation') {
+            substitution.loc = substitution.loc || {};
+            substitution.loc[pattern[k].splice] = match[k];
+        } else {
+	    substitution = module.exports(pattern[k], match[k], substitution);
+	    if(!substitution) {
+	        return null;
+	    }
+        }
     }
     return substitution;
 }

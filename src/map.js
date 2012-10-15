@@ -51,10 +51,6 @@ exports.substitute = function(onto, subst) {
 			     return ast;
 
                          if(ast.type === 'SpliceLocation') {
-                             if(subst.loc[ast.splice] === undefined)
-                                 throw new Error('Nonexisting location splice ' +
-                                                 ast.splice + ' in ' +
-                                                 JSON.stringify(subst, null, 4));
                              return subst.loc[ast.splice];
                          }
 

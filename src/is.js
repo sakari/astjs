@@ -25,7 +25,8 @@ var statement = {
     VariableDeclaration: 1,
     EmptyStatement: 1,
     IfStatement: 1,
-    ExpressionStatement: 1
+    ExpressionStatement: 1,
+    FunctionDeclaration: 1
 };
 
 exports.statement = function(ast) {

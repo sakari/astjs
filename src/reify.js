@@ -1,5 +1,6 @@
 var esprima = require('esprima');
 var transform = require('./index').transform;
+var _ = require('underscore');
 
 exports.reify = function(fn, opts) {
     var ast = esprima.parse(fn);
@@ -21,10 +22,11 @@ exports.pattern = function(fn, opts) {
         if (ast && ast.type &&
             ast.type !== 'Splice' &&
             ast.type !== 'SpliceList') {
-            ast.loc = {
-                type: 'SpliceLocation',
-                splice: locIndex++
-            };
+            ast = _.extend(ast, {
+                loc: {
+                    type: 'SpliceLocation',
+                    splice: locIndex++
+                }});
         }
         return ast;
     });

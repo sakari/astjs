@@ -57,14 +57,14 @@ describe('tools', function() {
 		   });
 		it('hoists vardecls from for', function() {
 			tools.hoist(reify(function block() {
-				for(var a, b = 0;;){}
+			    for(var a, b = 0;;){}
 			}))
-				.should
-				.eql(reify(function block() {
-					var a;
-					var b;
-					for(b = 0;;){}
-				}));
+			.should
+			.eql(reify(function block() {
+			    var a;
+			    var b;
+			    for(b = 0;;){}
+			}));
 		});
 
 		it('hoists vardecls to top of encloding functnio',

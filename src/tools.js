@@ -29,10 +29,10 @@ exports.hoist = function(ast) {
 	           stmt.type !== 'ForStatement')
 	                return stmt;
 	        return map.map(stmt
-			       , reify(function stmt() {
-				       for($0;$1;$2)
-					       $4;
-			       })
+			       , function stmt() {
+				   for($0;$1;$2)
+				       $4;
+			       }
 			       , {0: function(ast) {
 				       ast = handleVarDecl(ast, vars);
 				       if (!ast) return ast;
@@ -103,23 +103,23 @@ exports.block = function(ast) {
 
         function handleIf(ast) {
 	        return map.map(ast
-		               , reify(function block() {
-				       if($0) $1;
-			       })
+		               , function block() {
+				   if($0) $1;
+			       }
 		               ,{ 1: wrapExpression });
         }
         function handleFor(ast) {
 	        return map.map(ast
-		               ,reify(function block() {
-				       for($0;$1;$2) $3;
-			       })
+		               ,function block() {
+				   for($0;$1;$2) $3;
+			       }
 		               , { 3: wrapExpression });
         }
         function handleWhile(ast) {
 	        return map.map(ast
-		               ,reify(function block() {
-				       while($0) $1;
-			       })
+		               ,function block() {
+				   while($0) $1;
+			       }
 		               ,{ 1: wrapExpression });
         }
 
