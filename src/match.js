@@ -88,7 +88,6 @@ function matchObject(pattern, match, substitution) {
 	return null;
 
     if (pattern && pattern.type === 'SpliceLocation') {
-        console.log('SpliceLocation ' + pattern);
         substitution.loc = substitution.loc || {};
         substitution.loc[pattern.splice] = match;
         return substitution;
@@ -134,17 +133,17 @@ module.exports = function(pattern, match, substitution) {
     }
 
     if (subst) {
-	console.log("Unify:\n" + JSON.stringify({
-						    pattern: pattern,
-						    match: match,
-						    substitution: subst
-						}, null, 4));
+	// console.log("Unify:\n" + JSON.stringify({
+	// 					    pattern: pattern,
+	// 					    match: match,
+	// 					    substitution: subst
+	// 					}, null, 4));
 	return subst;
     }
-    console.log('No unification for:' + JSON.stringify({
-    							   pattern: pattern,
-    							   match: match,
-    							   substitution: subst
-    						       }, null, 4));
+    // console.log('No unification for:' + JSON.stringify({
+    // 							   pattern: pattern,
+    // 							   match: match,
+    // 							   substitution: subst
+    // 						       }, null, 4));
     return null;
 };
