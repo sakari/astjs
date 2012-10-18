@@ -15,5 +15,8 @@
                         "escodegen": "~0.0.9",
                         "mocha": "~1.4.2",
                         "should": "~1.1.1"
+        },
+        "scripts": {
+                   "test": "node_modules/.bin/mocha"
         }
 }
