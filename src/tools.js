@@ -1,6 +1,6 @@
 var transform = require('./transform');
 var map = require('./map');
-var reify= require('./reify').reify;
+var reify= require('./reify');
 
 exports.simplify = function(ast) {
         return exports.hoist(exports.block(ast));
@@ -9,7 +9,7 @@ exports.simplify = function(ast) {
 exports.hoist = function(ast) {
         function splitDeclarator(decl, vars) {
 	    vars.push(map.substitute(
-		reify(function stmt(){
+		reify.reify(function stmt(){
 		    var $0;
 		})
 		, {0: decl.id}));
@@ -18,7 +18,7 @@ exports.hoist = function(ast) {
 	    if (!decl.init)
 	        return null;
 	    return map.substitute(
-	        reify(function expr() {
+	        reify.reify(function expr() {
 		    $0 = $1;
 		}), {0: decl.id,
 		     1: decl.init});

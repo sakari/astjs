@@ -1,26 +1,26 @@
 var tools = require('../src').tools;
-var reify = require('../src').reify.reify;
+var reify = require('../src').reify;
 
 describe('tools', function() {
         describe('hoist', function() {
                 it('hoists var decls to top', function() {
-			tools.hoist(reify(function block() {
+			tools.hoist(reify.reify(function block() {
 				anything;
 				var a;
 			}))
 				.should
-				.eql(reify(function block() {
+				.eql(reify.reify(function block() {
 					var a;
 					anything;
 				}));
 		});
 		it('leaves var assingments in place', function() {
-			tools.hoist(reify(function block() {
+			tools.hoist(reify.reify(function block() {
 				anything;
 				var a = 1;
 			}))
 				.should
-				.eql(reify(function block() {
+				.eql(reify.reify(function block() {
 					var a;
 					anything;
 					a = 1;
@@ -28,12 +28,12 @@ describe('tools', function() {
 		});
 		it('moves multiple vardecls to separate statements',
 		   function() {
-			   tools.hoist(reify(function block() {
+			   tools.hoist(reify.reify(function block() {
 				   anything;
 				   var a, b;
 			   }))
 				   .should
-				   .eql(reify(function block() {
+				   .eql(reify.reify(function block() {
 					   var a;
 					   var b;
 					   anything;
@@ -42,12 +42,12 @@ describe('tools', function() {
 
 		it('leaves var assingments as sequence expression',
 		   function() {
-			   tools.hoist(reify(function block() {
+			   tools.hoist(reify.reify(function block() {
 				   anything;
 				   var a = 1, b, c = 2;
 			   }))
 				   .should
-				   .eql(reify(function block() {
+				   .eql(reify.reify(function block() {
 					   var a;
 					   var b;
 					   var c;
@@ -56,11 +56,11 @@ describe('tools', function() {
 				   }));
 		   });
 		it('hoists vardecls from for', function() {
-			tools.hoist(reify(function block() {
+			tools.hoist(reify.reify(function block() {
 			    for(var a, b = 0;;){}
 			}))
 			.should
-			.eql(reify(function block() {
+			.eql(reify.reify(function block() {
 			    var a;
 			    var b;
 			    for(b = 0;;){}
@@ -69,7 +69,7 @@ describe('tools', function() {
 
 		it('hoists vardecls to top of encloding functnio',
 		   function() {
-			   tools.hoist(reify(function block() {
+			   tools.hoist(reify.reify(function block() {
 				   a = 1;
 				   var b;
 				   function c(r, k) {
@@ -78,7 +78,7 @@ describe('tools', function() {
 				   }
 			   }))
 				   .should
-				   .eql(reify(function block() {
+				   .eql(reify.reify(function block() {
 					   var b;
 					   a = 1;
 					   function c(r, k) {
@@ -91,11 +91,11 @@ describe('tools', function() {
 	});
 	describe('block', function() {
 		it('transforms if', function() {
-			tools.block(reify(function block() {
+			tools.block(reify.reify(function block() {
 				if(a) b;
 			}))
 				.should
-				.eql(reify(function block() {
+				.eql(reify.reify(function block() {
 					if(a) {
 						b;
 					}
@@ -103,11 +103,11 @@ describe('tools', function() {
 		});
 
 		it('transforms for', function() {
-			tools.block(reify(function block() {
+			tools.block(reify.reify(function block() {
 				for(;;) a;
 			}))
 				.should
-				.eql(reify(function block() {
+				.eql(reify.reify(function block() {
 					for(;;) {
 						a;
 					}
@@ -115,13 +115,13 @@ describe('tools', function() {
 		});
 
 		it('leaves for with a block as is', function() {
-			tools.block(reify(function block() {
+			tools.block(reify.reify(function block() {
 				for(;;) {
 					a;
 				}
 			}))
 				.should
-				.eql(reify(function block() {
+				.eql(reify.reify(function block() {
 					for(;;) {
 						a;
 					}
@@ -129,11 +129,11 @@ describe('tools', function() {
 		});
 
 		it('transforms while', function() {
-			tools.block(reify(function block() {
+			tools.block(reify.reify(function block() {
 				while(1) 2;
 			}))
 				.should
-				.eql(reify(function block() {
+				.eql(reify.reify(function block() {
 					while(1) {
 						2;
 					}
@@ -142,7 +142,7 @@ describe('tools', function() {
 
                 it('copies the expression source loc on the wrapping block',
                    function() {
-                       var ast = reify(function block() {
+                       var ast = reify.reify(function block() {
 			   while(1) 2;
 		       }, { loc: true });
                        tools.block(ast)[0]

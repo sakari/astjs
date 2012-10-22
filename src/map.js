@@ -1,7 +1,6 @@
 var esprima = require('esprima');
 var _ = require('underscore');
-var reify = require('./reify').reify;
-var reifyPattern = require('./reify').pattern;
+var reify = require('./reify');
 var transform = require('./transform');
 var match = require('./match');
 
@@ -17,13 +16,13 @@ exports.switch = function(ast, pattern, switchAst) {
 
 function reified(ast) {
     if (ast instanceof Function)
-	return reify(ast);
+	return reify.reify(ast);
     return ast;
 }
 
 function reifiedPattern(ast) {
     if (ast instanceof Function)
-	return reifyPattern(ast);
+	return reify.pattern(ast);
     return ast;
 }
 

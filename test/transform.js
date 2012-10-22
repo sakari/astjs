@@ -1,12 +1,12 @@
 var transform = require('../src').transform;
-var reify = require('../src').reify.reify;
+var reify = require('../src').reify;
 
 describe('.transform', function() {
 	     it('transforms ast trees', function() {
-		    var fn = reify(function stmt() {
+		    var fn = reify.reify(function stmt() {
 					    var i;
 					});
-		    transform(fn, 
+		    transform(fn,
 			      function(ast) {
 				  if (ast.type !== 'Identifier')
 				      return ast;
@@ -21,7 +21,7 @@ describe('.transform', function() {
 			.should
 			.equal('mapped_i');
 		});
-	     
+
 	     it('flattens transfrom results in lists', function() {
 		    var p = [{ type: 'T'}, { type: 'K'}];
 		    transform(p, function(ast) {
