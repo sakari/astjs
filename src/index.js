@@ -6,3 +6,4 @@ exports.match = require('./match');
 exports.tools = require('./tools');
 exports.is = require('./is');
 exports.iterator = require('./iterator');
+exports.symbols = require('./symbols');
