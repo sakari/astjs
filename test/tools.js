@@ -67,7 +67,7 @@ describe('tools', function() {
 			}));
 		});
 
-		it('hoists vardecls to top of encloding functnio',
+		it('hoists vardecls to top of enclosing function',
 		   function() {
 			   tools.hoist(reify.reify(function block() {
 				   a = 1;
