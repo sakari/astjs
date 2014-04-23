@@ -1,4 +1,3 @@
-
 # Fun with javascript AST on top of esprima.
 
 Transformations, pattern matching, substitution, reification. The gist
@@ -30,7 +29,7 @@ the splice variables.
 
 Run tests with `mocha`
 
-# Licence (MIT style)
+# License (MIT style)
 
 Copyright (C) 2012 Sakari Jokinen
 
